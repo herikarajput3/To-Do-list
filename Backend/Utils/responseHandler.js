@@ -1,16 +1,11 @@
 const response = (res, statusCode, message, data = null) => {
-    if (!res) {
-        throw new Error("Response object is required");
+    if (!res) throw new Error("Response object is required");
+
+    if (statusCode < 400) {
+        return res.status(statusCode).json({ status: "success", message, data });
+    } else {
+        return res.status(statusCode).json({ status: "error", message, error: data });
     }
-
-    const responseData = {
-        status: statusCode < 400 ? "success" : "error",
-        message,
-        data
-    };
-
-    return res.status(statusCode).json(responseData);
-
-}
+};
 
 module.exports = response;

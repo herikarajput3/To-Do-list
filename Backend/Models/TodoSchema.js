@@ -1,11 +1,14 @@
-// Purpose of schema file is to give structure how our todo list looks like and how data will store into database also we use it to add features in our app like status, created date, task name, description, etc
+// The schema defines the structure of to-do list items and how the data will be stored in the database.
+// We use it to add fields like task name, description, status, created date, etc.
+
 
 const { Schema, model } = require("mongoose");
 
 const todoSchema = Schema({
     taskName: {
         type: String,
-        required: true
+        required: true,
+        trim: true
     },
     description: {
         type: String,
