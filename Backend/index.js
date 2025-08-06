@@ -5,9 +5,13 @@ const app = express() // it is a function that creates an instance of an Express
 require('dotenv').config()
 const port = process.env.PORT || 5000;
 const router = require('./Router/route')
+const cors = require('cors');
+const helmet = require('helmet');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cors()); // it allows your server to accept requests from different origins, which is useful for APIs that might be accessed by web applications hosted on different domains.
+app.use(helmet()); // it helps secure your Express app by setting various HTTP headers to protect against common vulnerabilities.
 app.use('/api', router);
 
 

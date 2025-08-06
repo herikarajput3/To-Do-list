@@ -1,59 +1,58 @@
-import React from 'react';
+import axios from 'axios';
+import { Plus } from 'lucide-react'
+import React from 'react'
 import { useForm } from 'react-hook-form';
+import toast, { Toaster } from 'react-hot-toast';
 
-const TaskForm = ({ onAddTask }) => {
-  const {
-    register,
-    handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm();
+const TaskForm = () => {
+  const { register, handleSubmit, formState: { errors }, reset } = useForm();
 
-  const onSubmit = (data) => {
-    console.log('Task submitted:', data);
-    
+  const onSubmit = async (data) => {
+    const response = await axios.post("http://localhost:3000/api/tasks", data);
+    console.log("Task added:", response.data);
+    if (response.status === 201) {
+      console.log(response.data.message);
+
+      toast.success(response.data.message);
+    }
+    else {
+      console.log(response.data.message);
+
+      toast.error(response.data.message);
+    }
     reset();
-  };
+  }
 
+  const addTask = () => {
+    // console.log("add");
+
+  }
   return (
-    <div className="flex items-center justify-center min-h-screen p-4">
-      <form
-        className="w-full max-w-md bg-base-100 p-7 rounded-xl shadow-lg flex flex-col gap-4"
-        onSubmit={handleSubmit(onSubmit)}
-        noValidate
-        aria-label="Add new task form"
-      >
-        <div className="form-control">
-          <input
-            type="text"
-            placeholder="Add a new task *"
-            className={`input input-bordered w-full ${errors.taskName ? 'input-error' : ''}`}
-            {...register('taskName', {
-              required: 'Task name is required',
-              maxLength: 100,
-              minLength: 3,
-            })}
-            aria-invalid={errors.taskName ? 'true' : 'false'}
-            aria-describedby="taskName-error"
-            autoComplete="off"
-          />
-          {errors.taskName && (
-            <p className="text-error text-xs mt-1" id="taskName-error">{errors.taskName.message}</p>
-          )}
-        </div>
-        <div className="form-control">
-          <input
-            type="text"
-            placeholder="Add description (optional)"
-            className="input input-bordered w-full"
-            {...register('description', { maxLength: 250 })}
-            autoComplete="off"
-          />
-        </div>
-        <button type="submit" className="btn btn-primary w-full">Add Task</button>
-      </form>
-    </div>
-  );
-};
+    <>
+      <button className="text-white btn" onClick={() => document.getElementById('my_modal_1').showModal()}><Plus /></button>
+      <dialog id="my_modal_1" className="modal">
+        <div className="modal-box">
+          <h3 className="font-bold text-lg">Add Task</h3>
 
-export default TaskForm;
+          <form className="py-4" onSubmit={handleSubmit(onSubmit)}>
+            <input type="text" placeholder="Task name" className="input w-full" {...register('taskName', { required: true })} />
+            {errors.taskName && <span className="text-red-500">This field is required</span>}
+
+            <input type="text" placeholder="Task description" className="input w-full mt-4" {...register('description')} />
+            {errors.description && <span className="text-red-500"></span>}
+
+            <button className='btn' type='submit' onClick={addTask}>Add task</button>
+          </form>
+          <div className="modal-action">
+            <form method="dialog">
+              <button className="btn">Close</button>
+            </form>
+          </div>
+        </div>
+      </dialog>
+      <Toaster position="top-right" reverseOrder={false} />
+    </>
+  )
+}
+
+export default TaskForm
