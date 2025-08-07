@@ -1,34 +1,64 @@
 import axios from 'axios';
 import { Plus } from 'lucide-react'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form';
 import toast, { Toaster } from 'react-hot-toast';
 
 const TaskForm = () => {
   const { register, handleSubmit, formState: { errors }, reset } = useForm();
+  const [taskData, setTaskData] = useState([]);
 
   const onSubmit = async (data) => {
     const response = await axios.post("http://localhost:3000/api/tasks", data);
     console.log("Task added:", response.data);
     if (response.status === 201) {
       console.log(response.data.message);
-
       toast.success(response.data.message);
+      getTasks();
     }
     else {
       console.log(response.data.message);
-
       toast.error(response.data.message);
     }
     reset();
   }
 
-  const addTask = () => {
-    // console.log("add");
-
+  const getTasks = async () => {
+    const response = await axios.get("http://localhost:3000/api/tasks");
+    // console.log(response.data.data);
+    let tasks = response.data;
+    setTaskData(tasks.data);
   }
+
+  useEffect(() => {
+    getTasks();
+  }, []);
+
   return (
     <>
+
+      <ul className="list bg-base-100 rounded-box shadow-md">
+        {taskData ? (
+          taskData.map((task, index) => {
+            return (
+              <li key={index} className="list-row">
+                <div className="text-4xl font-thin opacity-30 tabular-nums">
+                  <input type="checkbox" className="checkbox checkbox-info" />
+                </div>
+                <div className="list-col-grow">
+                  <div>{task.taskName}</div>
+                  <div className="text-xs uppercase font-semibold opacity-60">{task.description}</div>
+                </div>
+                <button className="btn btn-primary">Edit</button>
+                <button className="btn btn-danger">Delete</button>
+              </li>
+            )
+          }))
+          : (
+            <span className="text-center text-gray-500">No tasks available</span>
+          )}
+      </ul>
+
       <button className="text-white btn" onClick={() => document.getElementById('my_modal_1').showModal()}><Plus /></button>
       <dialog id="my_modal_1" className="modal">
         <div className="modal-box">
@@ -41,7 +71,7 @@ const TaskForm = () => {
             <input type="text" placeholder="Task description" className="input w-full mt-4" {...register('description')} />
             {errors.description && <span className="text-red-500"></span>}
 
-            <button className='btn' type='submit' onClick={addTask}>Add task</button>
+            <button className='btn' type='submit'>Add task</button>
           </form>
           <div className="modal-action">
             <form method="dialog">
