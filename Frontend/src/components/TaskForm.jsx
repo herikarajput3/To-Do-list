@@ -30,6 +30,28 @@ const TaskForm = () => {
     setTaskData(tasks.data);
   }
 
+  const toggleTaskStatus = async (task) => {
+    try {
+      const updatedTask = {
+        ...task,
+        status: !task.status
+      };
+
+      const response = await axios.put(`http://localhost:3000/api/tasks/${task._id}`, updatedTask);
+
+      if (response.status === 200) {
+        toast.success("Task status updated!");
+        getTasks();
+      } else {
+        toast.error("Failed to update task status.");
+      }
+    } catch (error) {
+      console.error("Error updating task:", error);
+      toast.error("Something went wrong while updating status.");
+    }
+  }
+
+
   useEffect(() => {
     getTasks();
   }, []);
@@ -43,11 +65,15 @@ const TaskForm = () => {
             return (
               <li key={index} className="list-row">
                 <div className="text-4xl font-thin opacity-30 tabular-nums">
-                  <input type="checkbox" className="checkbox checkbox-info" />
+                  <input
+                    type="checkbox"
+                    className="checkbox checkbox-info"
+                    checked={task.status}
+                    onChange={() => toggleTaskStatus(task)} />
                 </div>
                 <div className="list-col-grow">
-                  <div>{task.taskName}</div>
-                  <div className="text-xs uppercase font-semibold opacity-60">{task.description}</div>
+                  <div className={task.status ? "line-through text-gray-400" : ""}>{task.taskName}</div>
+                  <div className={`text-xs uppercase font-semibold ${task.status ? "line-through text-gray-400" : "opacity-60"}`}>{task.description}</div>
                 </div>
                 <button className="btn btn-primary">Edit</button>
                 <button className="btn btn-danger">Delete</button>
